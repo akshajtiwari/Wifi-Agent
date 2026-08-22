@@ -494,11 +494,11 @@ class PortalClient:
         is_positive_status = status_upper in {"ACK", "LIVE", "OK", "SUCCESS", "1"}
         is_positive_ack = ack_upper in {"ACK", "LIVE", "OK", "SUCCESS", "1"}
         is_explicit_negative = (
-            status_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0"}
-            or ack_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0"}
+            status_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0", "OFF", "LIVE_OFF"}
+            or ack_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0", "OFF", "LIVE_OFF"}
             or any(
                 word in message.casefold()
-                for word in ("invalid", "denied", "error", "fail", "maximum login", "logged off", "signed off")
+                for word in ("invalid", "denied", "error", "fail", "maximum login", "logged off", "signed off", "live_off", "off")
             )
         )
 
@@ -768,7 +768,7 @@ class AgentMonitor:
                 self._keepalive_failures += 1
                 session_expired = any(
                     word in keepalive_message.casefold()
-                    for word in ("login", "fail", "nack", "expired", "denied", "invalid", "signed off", "logged off")
+                    for word in ("login", "fail", "nack", "expired", "denied", "invalid", "signed off", "logged off", "live_off", "off", "inactive")
                 )
                 if session_expired or self._keepalive_failures >= 2:
                     now = time.monotonic()

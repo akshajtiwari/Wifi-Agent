@@ -92,6 +92,11 @@ class PortalTests(unittest.TestCase):
         self.assertFalse(success)
         self.assertEqual(message, "fail")
 
+    def test_keepalive_live_off_ack_is_detected_as_failure(self) -> None:
+        success, message = app.PortalClient._response_summary("<response><ack>live_off</ack></response>")
+        self.assertFalse(success)
+        self.assertEqual(message, "live_off")
+
     def test_failure_response_is_not_accepted(self) -> None:
         success, _ = app.PortalClient._response_summary(
             "<response><status>ERROR</status><message>Invalid credentials</message></response>"
