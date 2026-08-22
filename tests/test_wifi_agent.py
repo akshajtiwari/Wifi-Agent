@@ -72,6 +72,26 @@ class PortalTests(unittest.TestCase):
         self.assertTrue(success)
         self.assertIn("Signed in", message)
 
+    def test_keepalive_ack_response_is_successful(self) -> None:
+        success, message = app.PortalClient._response_summary("<response><ack>ack</ack></response>")
+        self.assertTrue(success)
+        self.assertEqual(message, "ack")
+
+    def test_root_ack_is_understood(self) -> None:
+        success, message = app.PortalClient._response_summary("<ack>ack</ack>")
+        self.assertTrue(success)
+        self.assertEqual(message, "ack")
+
+    def test_keepalive_session_expired_ack_is_detected_as_failure(self) -> None:
+        success, message = app.PortalClient._response_summary("<response><ack>login</ack></response>")
+        self.assertFalse(success)
+        self.assertEqual(message, "login")
+
+    def test_keepalive_fail_ack_is_detected_as_failure(self) -> None:
+        success, message = app.PortalClient._response_summary("<response><ack>fail</ack></response>")
+        self.assertFalse(success)
+        self.assertEqual(message, "fail")
+
     def test_failure_response_is_not_accepted(self) -> None:
         success, _ = app.PortalClient._response_summary(
             "<response><status>ERROR</status><message>Invalid credentials</message></response>"
@@ -85,6 +105,21 @@ class PortalTests(unittest.TestCase):
     def test_connectivity_redirects_are_never_followed(self) -> None:
         handler = app._NoRedirect()
         self.assertIsNone(handler.redirect_request(None, None, 302, "Found", {}, "http://portal.local"))
+
+
+class InterfaceTests(unittest.TestCase):
+    def test_wired_interfaces_excludes_cloudflare_warp_and_vpns(self) -> None:
+        self.assertFalse(app._looks_wired("CloudflareWARP"))
+        self.assertFalse(app._looks_wired("Tailscale"))
+        self.assertFalse(app._looks_wired("WireGuard"))
+        self.assertFalse(app._looks_wired("OpenVPN TAP-Windows"))
+        self.assertFalse(app._looks_wired("Wi-Fi"))
+        self.assertFalse(app._looks_wired("vEthernet (Default Switch)"))
+
+    def test_wired_interfaces_includes_physical_ethernet(self) -> None:
+        self.assertTrue(app._looks_wired("Ethernet"))
+        self.assertTrue(app._looks_wired("Local Area Connection* 10"))
+        self.assertTrue(app._looks_wired("Ethernet 2"))
 
 
 class MonitorTests(unittest.TestCase):
@@ -109,6 +144,66 @@ class MonitorTests(unittest.TestCase):
             self.assertTrue(monitor.check_once())
         client.login.assert_called_once_with()
         self.assertEqual(monitor.snapshot.phase, "online")
+
+    def test_keepalive_session_expiry_triggers_auto_login_even_when_probe_is_online(self) -> None:
+        # Simulates Cloudflare WARP masking internet availability while portal session expired
+        client = types.SimpleNamespace(
+            login=Mock(return_value=(True, "LIVE")),
+            keep_alive=Mock(return_value=(False, "login")),
+        )
+        monitor, _ = self.make_monitor(client)
+        with (
+            patch.object(app, "wired_interfaces", return_value=["Ethernet"]),
+            patch.object(app, "portal_port_open", return_value=True),
+            patch.object(app, "internet_available", return_value=True),
+            patch.object(app, "write_status"),
+            patch.object(monitor.stop_event, "wait", return_value=False),
+        ):
+            self.assertTrue(monitor.check_once())
+        client.keep_alive.assert_called_once_with()
+        client.login.assert_called_once_with()
+        self.assertEqual(monitor.snapshot.phase, "online")
+        self.assertIn("refreshed", monitor.snapshot.message)
+
+    def test_keepalive_successful_ack_maintains_online_without_login(self) -> None:
+        client = types.SimpleNamespace(
+            login=Mock(),
+            keep_alive=Mock(return_value=(True, "ack")),
+        )
+        monitor, _ = self.make_monitor(client)
+        with (
+            patch.object(app, "wired_interfaces", return_value=["Ethernet"]),
+            patch.object(app, "portal_port_open", return_value=True),
+            patch.object(app, "internet_available", return_value=True),
+            patch.object(app, "write_status"),
+        ):
+            self.assertTrue(monitor.check_once())
+        client.keep_alive.assert_called_once_with()
+        client.login.assert_not_called()
+        self.assertEqual(monitor.snapshot.phase, "online")
+        self.assertEqual(monitor._keepalive_failures, 0)
+
+    def test_consecutive_keepalive_failures_trigger_auto_login(self) -> None:
+        client = types.SimpleNamespace(
+            login=Mock(return_value=(True, "LIVE")),
+            keep_alive=Mock(return_value=(False, "HTTP response received")),
+        )
+        monitor, _ = self.make_monitor(client)
+        with (
+            patch.object(app, "wired_interfaces", return_value=["Ethernet"]),
+            patch.object(app, "portal_port_open", return_value=True),
+            patch.object(app, "internet_available", return_value=True),
+            patch.object(app, "write_status"),
+            patch.object(monitor.stop_event, "wait", return_value=False),
+        ):
+            # First failure logs warning
+            monitor.check_once()
+            self.assertEqual(client.login.call_count, 0)
+            self.assertEqual(monitor._keepalive_failures, 1)
+            # Second consecutive failure triggers login recovery
+            monitor.check_once()
+            self.assertEqual(client.login.call_count, 1)
+            self.assertEqual(monitor._keepalive_failures, 0)
 
     def test_login_failures_use_bounded_backoff(self) -> None:
         client = types.SimpleNamespace(login=Mock(return_value=(False, "DENIED")), keep_alive=Mock())
@@ -155,19 +250,23 @@ class MonitorTests(unittest.TestCase):
 class StartupTests(unittest.TestCase):
     def test_frozen_application_commands_do_not_reference_source_script(self) -> None:
         executable = Path("/Applications/WiFi Agent.app/Contents/MacOS/WiFi Agent")
+        resolved = str(executable.resolve())
         with (
             patch.object(app.sys, "frozen", True, create=True),
             patch.object(app.sys, "executable", str(executable)),
             patch.object(app.sys, "platform", "darwin"),
         ):
-            self.assertEqual(app._service_command(), [str(executable), "tray"])
-            self.assertEqual(app._application_working_directory(), executable.parent)
+            self.assertEqual(app._service_command(), [resolved, "tray"])
+            self.assertEqual(app._application_working_directory(), executable.resolve().parent)
 
     def test_macos_install_at_login_rejects_app_running_from_disk_image(self) -> None:
         with (
             patch.object(app.sys, "frozen", True, create=True),
             patch.object(app.sys, "executable", "/Volumes/WiFi Agent/WiFi Agent.app/Contents/MacOS/WiFi Agent"),
             patch.object(app.sys, "platform", "darwin"),
+            patch.object(app, "ensure_dependencies"),
+            patch.object(app, "load_config", return_value=app.validate_config({"username": "student"})),
+            patch.object(app, "get_password", return_value="secret"),
         ):
             with self.assertRaisesRegex(RuntimeError, "Applications folder"):
                 app.install_startup()

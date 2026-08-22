@@ -371,6 +371,9 @@ def _looks_wired(name: str) -> bool:
     excluded = (
         "wi-fi", "wifi", "wlan", "wireless", "airport", "loopback", "bluetooth",
         "docker", "veth", "virbr", "vmnet", "virtual", "tailscale", "utun", "tun", "tap",
+        "cloudflare", "warp", "wireguard", "wintun", "zerotier", "nordlynx", "proton",
+        "openvpn", "anyconnect", "cisco", "fortinet", "globalprotect", "secuextender",
+        "hamachi", "hyper-v", "vethernet", "npcap", "pcap",
     )
     if any(word in lower for word in excluded):
         return False
@@ -462,6 +465,7 @@ class PortalClient:
 
         status = ""
         message = ""
+        ack = ""
         try:
             root = ET.fromstring(text)
             for element in root.iter():
@@ -471,13 +475,44 @@ class PortalClient:
                     status = value
                 elif tag == "message" and not message:
                     message = value
+                elif tag == "ack" and not ack:
+                    ack = value
+                elif tag in {"state", "result"} and not status:
+                    status = value
         except ET.ParseError:
             pass
-        combined = " ".join(part for part in (status, message) if part) or "HTTP response received"
-        bad_words = ("fail", "invalid", "denied", "error", "could not", "maximum login")
-        success = status.upper() in {"ACK", "LIVE", "OK", "SUCCESS"}
-        if not status and message and not any(word in message.casefold() for word in bad_words):
+
+        parts = []
+        for part in (status, message, ack):
+            if part and not any(part.casefold() == existing.casefold() for existing in parts):
+                parts.append(part)
+        combined = " ".join(parts) or "HTTP response received"
+
+        status_upper = status.upper()
+        ack_upper = ack.upper()
+
+        is_positive_status = status_upper in {"ACK", "LIVE", "OK", "SUCCESS", "1"}
+        is_positive_ack = ack_upper in {"ACK", "LIVE", "OK", "SUCCESS", "1"}
+        is_explicit_negative = (
+            status_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0"}
+            or ack_upper in {"FAIL", "FAILED", "LOGIN", "NACK", "ERROR", "DENIED", "0"}
+            or any(
+                word in message.casefold()
+                for word in ("invalid", "denied", "error", "fail", "maximum login", "logged off", "signed off")
+            )
+        )
+
+        if is_explicit_negative:
+            success = False
+        elif is_positive_status or is_positive_ack:
             success = True
+        elif not status and not ack and message and not any(
+            word in message.casefold() for word in ("fail", "invalid", "denied", "error", "could not", "maximum login")
+        ):
+            success = True
+        else:
+            success = False
+
         return success, combined
 
     def login(self) -> tuple[bool, str]:
@@ -725,13 +760,42 @@ class AgentMonitor:
         retry_in = max(0, int(self._next_login_at - time.monotonic()))
 
         if ethernet and port_open and online:
-            self._reset_login_backoff()
             ok, keepalive_message = client.keep_alive()
             if ok:
                 self._keepalive_failures = 0
+                self._reset_login_backoff()
             else:
                 self._keepalive_failures += 1
-                if self._keepalive_failures == 1 or self._keepalive_failures % 5 == 0:
+                session_expired = any(
+                    word in keepalive_message.casefold()
+                    for word in ("login", "fail", "nack", "expired", "denied", "invalid", "signed off", "logged off")
+                )
+                if session_expired or self._keepalive_failures >= 2:
+                    now = time.monotonic()
+                    if now >= self._next_login_at:
+                        self.logger.info(
+                            "Portal keep-alive indicates session is inactive (%s); attempting portal login",
+                            keepalive_message,
+                        )
+                        ok_login, login_msg = client.login()
+                        if ok_login:
+                            self.logger.info("Portal login accepted: %s", login_msg)
+                            self._publish(last_login_at=utc_now())
+                            self._keepalive_failures = 0
+                            self._reset_login_backoff()
+                            if not self.stop_event.wait(3):
+                                online = internet_available()
+                            phase = "online" if online else "offline"
+                            message = "Login succeeded; session refreshed" if online else "Login accepted; verifying internet"
+                        else:
+                            delay = self._schedule_login_retry(config)
+                            retry_in = delay
+                            message = f"Portal re-login failed; retrying in {delay}s"
+                            self.logger.warning("%s: %s", message, login_msg)
+                    else:
+                        phase = "backoff"
+                        message = f"Waiting {retry_in}s before re-login"
+                elif self._keepalive_failures == 1 or self._keepalive_failures % 5 == 0:
                     self.logger.warning("Portal keep-alive was not acknowledged: %s", keepalive_message)
 
         elif ethernet and port_open and not online:
@@ -1025,7 +1089,11 @@ def install_startup() -> str:
     if (
         sys.platform == "darwin"
         and getattr(sys, "frozen", False)
-        and str(Path(sys.executable).resolve()).startswith("/Volumes/")
+        and (
+            str(Path(sys.executable).resolve()).startswith("/Volumes/")
+            or Path(sys.executable).as_posix().startswith("/Volumes/")
+            or any(part.casefold() == "volumes" for part in Path(sys.executable).parts)
+        )
     ):
         raise RuntimeError(
             "Move WiFi Agent to the Applications folder before enabling Install at Login."
@@ -1098,7 +1166,8 @@ def install_startup() -> str:
         }
         with target.open("wb") as handle:
             plistlib.dump(payload, handle)
-        domain = f"gui/{os.getuid()}"
+        uid = getattr(os, "getuid", lambda: 501)()
+        domain = f"gui/{uid}"
         subprocess.run(["launchctl", "bootout", domain, str(target)], capture_output=True)
         subprocess.run(["launchctl", "bootstrap", domain, str(target)], check=True, capture_output=True, text=True)
         return f"macOS LaunchAgent installed at {target} and started."
@@ -1154,7 +1223,8 @@ def uninstall_startup() -> str:
         return f"Windows startup task '{APP_NAME}' removed. Saved settings were kept."
     if sys.platform == "darwin":
         target = Path.home() / "Library" / "LaunchAgents" / "com.local.wifi-agent.plist"
-        subprocess.run(["launchctl", "bootout", f"gui/{os.getuid()}", str(target)], capture_output=True)
+        uid = getattr(os, "getuid", lambda: 501)()
+        subprocess.run(["launchctl", "bootout", f"gui/{uid}", str(target)], capture_output=True)
         if target.exists():
             target.unlink()
         return "macOS LaunchAgent removed. Saved settings were kept."
