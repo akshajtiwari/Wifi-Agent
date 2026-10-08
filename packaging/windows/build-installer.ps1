@@ -72,8 +72,13 @@ try {
     & python -m PyInstaller @PyInstallerArguments
     if ($LASTEXITCODE -ne 0) { throw "PyInstaller failed." }
     $ApplicationExecutable = Join-Path $BuildRoot "dist\WiFiAgent\WiFiAgent.exe"
-    & $ApplicationExecutable self-test
-    if ($LASTEXITCODE -ne 0) { throw "The packaged Windows application failed its startup self-test." }
+    # A windowed executable returns to PowerShell immediately unless waited for.
+    $SelfTestResult = Join-Path $BuildRoot "self-test.txt"
+    $SelfTest = Start-Process -FilePath $ApplicationExecutable -ArgumentList @("self-test", "--result-file", "`"$SelfTestResult`"") -Wait -PassThru
+    if ($SelfTest.ExitCode -ne 0 -or -not (Test-Path $SelfTestResult) -or (Get-Content $SelfTestResult -TotalCount 1) -ne "ok") {
+        if (Test-Path $SelfTestResult) { Get-Content $SelfTestResult | Write-Host }
+        throw "The packaged Windows application failed its startup self-test."
+    }
     Invoke-CodeSigning $ApplicationExecutable
 
     $CompilerCandidates = @(
