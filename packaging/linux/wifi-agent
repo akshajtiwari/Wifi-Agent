@@ -1,0 +1,3 @@
+#!/bin/sh
+# Launcher installed as /usr/bin/wifi-agent by the Linux packages.
+exec /usr/bin/python3 /usr/lib/wifi-agent/wifi_agent.py "$@"

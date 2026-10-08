@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=WiFi Agent
+GenericName=Captive Portal Login
+Comment=Keep the Sophos/Cyberoam portal session signed in on wired networks
+Exec=wifi-agent setup
+Icon=wifi-agent
+Terminal=false
+Categories=Network;
+Keywords=ethernet;portal;captive;sophos;cyberoam;login;campus;
+StartupNotify=true

@@ -1,0 +1,13 @@
+post_install() {
+    echo "Open \"WiFi Agent\" from the applications menu (or run: wifi-agent setup) to finish setup."
+}
+
+post_upgrade() {
+    # Move running per-user agents onto the new code; no-op when none run.
+    /usr/lib/wifi-agent/user-services.sh try-restart
+}
+
+pre_remove() {
+    # Saved settings stay in each user's ~/.config/WiFiAgent.
+    /usr/lib/wifi-agent/user-services.sh stop
+}

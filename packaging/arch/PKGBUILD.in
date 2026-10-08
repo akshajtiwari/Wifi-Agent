@@ -1,0 +1,21 @@
+# Maintainer: Akshaj Tiwari <akshajtiwari9a@gmail.com>
+pkgname=wifi-agent
+pkgver=@VERSION@
+pkgrel=1
+pkgdesc="Automatic Sophos/Cyberoam captive-portal login for wired networks, with tray icon and notifications"
+arch=('any')
+url="https://github.com/akshajtiwari/Wifi-Agent"
+license=('unknown')
+depends=('python' 'python-keyring' 'python-psutil' 'python-jeepney' 'python-secretstorage' 'tk')
+optdepends=(
+    'gnome-keyring: keep the portal password in a Secret Service keyring'
+    'kwallet: keep the portal password in KWallet through Secret Service'
+)
+install=wifi-agent.install
+source=("wifi-agent-$pkgver.tar.gz::@SOURCE_URL@")
+sha256sums=('@SHA256@')
+
+package() {
+    cd "wifi-agent-$pkgver"
+    sh packaging/linux/stage.sh "$pkgdir" "$pkgver"
+}

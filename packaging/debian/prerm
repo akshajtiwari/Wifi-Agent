@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" ]; then
+    # Saved settings stay in each user's ~/.config/WiFiAgent.
+    /usr/lib/wifi-agent/user-services.sh stop
+fi
+exit 0

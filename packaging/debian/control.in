@@ -1,0 +1,18 @@
+Package: wifi-agent
+Version: @VERSION@
+Section: net
+Priority: optional
+Architecture: all
+Installed-Size: @SIZE@
+Depends: python3 (>= 3.10), python3-keyring, python3-psutil, python3-tk, python3-jeepney, python3-secretstorage
+Suggests: gnome-keyring, gnome-shell-extension-appindicator
+Maintainer: Akshaj Tiwari <akshajtiwari9a@gmail.com>
+Homepage: https://github.com/akshajtiwari/Wifi-Agent
+Description: automatic Sophos/Cyberoam captive-portal login for wired networks
+ WiFi Agent watches the wired connection, signs back in to the campus or
+ office captive portal whenever the session ends, and shows its state in
+ the system tray with desktop notifications.
+ .
+ The password is kept in the Secret Service keyring (GNOME Keyring or
+ KWallet) when one is available, otherwise in a file readable only by the
+ user.
