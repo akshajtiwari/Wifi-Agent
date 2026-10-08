@@ -14,8 +14,7 @@ tray icon, desktop notifications, and a native settings window.
 
 [Download](#downloads) · [Website](https://wifi-agent.vercel.app/) · [Quick start](#quick-start) · [Usage](#using-wifi-agent) · [Troubleshooting](#troubleshooting) · [Development](#development)
 
-> **Official website:** https://wifi-agent.vercel.app/ — static download site for WiFi Agent, deployed from [`frontend/index.html`](frontend/index.html).
-
+> **Official website:** https://wifi-agent.vercel.app/
 ## Overview
 
 WiFi Agent is a lightweight background service for networks protected by a
