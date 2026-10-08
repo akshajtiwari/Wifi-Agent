@@ -2,8 +2,9 @@
 
 **Reliable Sophos/Cyberoam captive-portal authentication for wired networks.**
 
-WiFi Agent monitors Ethernet connectivity, restores authenticated portal
-sessions, and keeps connection status visible from a native desktop interface.
+WiFi Agent monitors Ethernet connectivity, signs you back in within seconds
+whenever the portal ends your session, and keeps its status visible from a
+tray icon, desktop notifications, and a native settings window.
 
 [![Website](https://img.shields.io/badge/Website-wifi--agent.vercel.app-black?logo=vercel)](https://wifi-agent.vercel.app/)
 [![Latest release](https://img.shields.io/github/v/release/akshajtiwari/Wifi-Agent?display_name=tag&sort=semver)](https://github.com/akshajtiwari/Wifi-Agent/releases/latest)
@@ -27,54 +28,77 @@ then logs in only when action is required.
 | Area | Capability |
 | --- | --- |
 | Connection | Detects active physical Ethernet interfaces and monitors portal reachability |
-| Authentication | Restores sessions automatically and sends portal keep-alive requests |
+| Authentication | Detects a portal logout from its keep-alive reply and logs in again immediately |
 | Status | Separately reports Ethernet, portal session, internet access, process, and startup health |
-| Credentials | Stores passwords in the operating-system credential vault, never in `config.json` |
-| Reliability | Prevents duplicate monitors, reloads settings live, and applies bounded retry backoff |
-| Management | Provides a dashboard, diagnostics viewer, logs, and Windows tray/macOS menu-bar controls |
+| Notifications | Announces sign-ins, logouts, rejected passwords, and setup problems on every desktop |
+| Credentials | Uses the OS credential vault; on Linux without one, a private user-only file |
+| Reliability | Rechecks after sleep or cable changes, retries quickly, and runs under a systemd watchdog on Linux |
+| Management | Dashboard, diagnostics, logs, and a tray/menu-bar icon on Windows, macOS, and Linux |
 | Updates | Finds the correct native installer, verifies its SHA-256 digest, and updates in place |
 
 ## Downloads
 
 **Official website / download site:** [https://wifi-agent.vercel.app/](https://wifi-agent.vercel.app/)
 
-### WiFi Agent 1.3.0
+### WiFi Agent 1.4.0
 
-Native installers bundle the complete runtime. End users do not need Python or
-the repository source code.
+Native installers bundle everything they need. End users do not need the
+repository source code.
 
 | Platform | Architecture | Recommended installer | Alternative |
 | --- | --- | --- | --- |
-| Windows | x86-64 | [Download setup `.exe`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-Windows-x64-Setup.exe) | — |
-| macOS | Apple silicon | [Download package `.pkg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-arm64.pkg) | [Disk image `.dmg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-arm64.dmg) |
-| macOS | Intel | [Download package `.pkg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-x86_64.pkg) | [Disk image `.dmg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-x86_64.dmg) |
-| Linux | Distribution-independent | [Source installation](#source-installation) | — |
+| Windows | x86-64 | [Download setup `.exe`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-Windows-x64-Setup.exe) | — |
+| macOS | Apple silicon | [Download package `.pkg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-arm64.pkg) | [Disk image `.dmg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-arm64.dmg) |
+| macOS | Intel | [Download package `.pkg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-x86_64.pkg) | [Disk image `.dmg`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-x86_64.dmg) |
+| Debian 12+, Ubuntu 22.04+, Mint, Pop!_OS | Any | [Download `.deb`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent_1.4.0_all.deb) | [Source installation](#source-installation) |
+| Arch Linux, Manjaro, EndeavourOS | Any | [Download package](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent-1.4.0-1-any.pkg.tar.zst) | [`PKGBUILD`](https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/PKGBUILD) |
+| Fedora, openSUSE, other Linux | Any | [Source installation](#source-installation) | — |
 
-[View the v1.3.0 release notes](https://github.com/akshajtiwari/Wifi-Agent/releases/tag/v1.3.0) or browse the [complete changelog](CHANGELOG.md).
+[View the v1.4.0 release notes](https://github.com/akshajtiwari/Wifi-Agent/releases/tag/v1.4.0) or browse the [complete changelog](CHANGELOG.md).
 
 > [!IMPORTANT]
 > The current public installers are not backed by Windows or Apple Developer ID
 > certificates because signing secrets are not configured for this repository.
-> Windows may show an unknown-publisher warning. macOS may require **Open
-> Anyway** in **System Settings → Privacy & Security**. Native builds still run
-> packaged-runtime checks, and in-app updates are SHA-256 verified before use.
+> Windows may show an unknown-publisher warning. macOS blocks the downloaded
+> package until it is allowed (see [macOS first launch](#macos-first-launch)).
+> Native builds still run packaged-runtime checks, and in-app updates are
+> SHA-256 verified before use.
 
 ## Quick start
 
-1. Download the installer matching the computer from the table above.
-2. Install WiFi Agent:
-   - On Windows, run the `.exe` setup.
-   - On macOS, run the `.pkg`; or copy **WiFi Agent.app** from the `.dmg` into
-     **Applications** and open it once.
+1. Install WiFi Agent:
+   - **Windows:** run the `.exe` setup.
+   - **macOS:** run in Terminal
+     `curl -fsSL https://raw.githubusercontent.com/akshajtiwari/Wifi-Agent/main/install-macos.sh | bash`,
+     or open the `.pkg` and follow [macOS first launch](#macos-first-launch).
+   - **Debian/Ubuntu:** `sudo apt install ./wifi-agent_1.4.0_all.deb`
+   - **Arch:** `sudo pacman -U wifi-agent-1.4.0-1-any.pkg.tar.zst`
+2. Open **WiFi Agent** (on Linux, from the applications menu or `wifi-agent setup`).
 3. Enter the portal username or roll number and password.
 4. Confirm the portal address and select an Ethernet adapter if automatic
    detection is unsuitable.
 5. Choose **Test Connection**.
-6. Choose **Save & install** on Windows or **Save & Install at Login** on macOS.
+6. Choose **Save & install** (**Save & Install at Login** on macOS).
 
 The first launch displays only initial setup. After credentials and login-time
-monitoring are configured, WiFi Agent reveals the live dashboard and begins
-monitoring in the background.
+monitoring are configured, WiFi Agent reveals the live dashboard, shows its
+tray or menu-bar icon, and starts monitoring in the background at every login.
+
+### macOS first launch
+
+The packages are not yet notarized by Apple, so macOS 15 shows *"Apple could
+not verify ‘WiFiAgent-….pkg’ is free of malware"* the first time. Either:
+
+- install from Terminal with the `install-macos.sh` command above. It
+  downloads with `curl`, checks GitHub's SHA-256 digest, and runs the standard
+  macOS installer, so Gatekeeper's download block does not apply; or
+- after the warning, choose **Done**, open **System Settings → Privacy &
+  Security**, choose **Open Anyway** next to the WiFi Agent message, and open
+  the package again.
+
+After installation, opening WiFi Agent from Launchpad, Spotlight, or the
+Applications folder always shows its settings window, even while the
+menu-bar agent is running.
 
 ## How it works
 
@@ -82,12 +106,21 @@ Each monitoring cycle follows the same conservative sequence:
 
 1. Detect an active wired interface.
 2. Check whether the configured portal port is reachable.
-3. Query the portal for an existing authenticated session.
-4. Verify public internet access without following captive-portal redirects.
-5. Log in only when Ethernet and the portal are reachable but neither a valid
+3. Send the portal's keep-alive request. A `login_again` reply means the
+   portal ended the session, and WiFi Agent logs in immediately.
+4. Otherwise, verify public internet access without following captive-portal
+   redirects.
+5. Log in when Ethernet and the portal are reachable but neither a valid
    portal session nor internet access is available.
-6. Publish an atomic status snapshot for the dashboard, tray/menu bar, CLI, and
-   diagnostics viewer.
+6. Publish an atomic status snapshot for the dashboard, tray/menu bar,
+   notifications, CLI, and diagnostics viewer.
+
+While everything is healthy WiFi Agent checks every 45 seconds (configurable).
+While something is wrong it checks every 10 seconds, and it checks at once
+after the computer wakes from sleep or the Ethernet cable or address changes.
+Retries depend on the failure: transient errors retry within 10–60 seconds,
+a "maximum login limit" reply retries after 30 seconds, and a rejected
+password backs off exponentially so the account is not locked.
 
 A confirmed portal session remains visibly **Connected** when a public probe is
 blocked or inconclusive. This prevents a working background login from appearing
@@ -106,10 +139,23 @@ to have failed.
 The Windows settings pane scrolls in compact, non-maximized windows so every
 connection-test and save action remains accessible.
 
-### Tray and menu bar
+### Tray, menu bar, and notifications
 
-The Windows notification-area icon and macOS menu-bar item provide quick access
-to:
+WiFi Agent shows an icon in the Windows notification area, the macOS menu
+bar, and the Linux system tray. On Linux the icon is green when signed in,
+amber while reconnecting, red when it needs attention, and grey when paused.
+It works with KDE Plasma, Cinnamon, XFCE, MATE, Budgie, Ubuntu's GNOME, and
+panels such as Waybar. On plain GNOME, enable the **AppIndicator and
+KStatusNotifierItem Support** extension (`gnome-shell-extension-appindicator`)
+to see it; notifications work either way.
+
+Desktop notifications report when WiFi Agent signs you in or back in after the
+portal ends a session, when a login fails or the portal rejects the password,
+when the portal stays unreachable, and when setup or the password vault needs
+attention. On a Linux desktop with no notification service at all, those
+problems open the WiFi Agent window instead.
+
+The icon menu provides quick access to:
 
 - Current connection status
 - Check and log in now
@@ -140,20 +186,23 @@ logs, and startup configuration remain in the user profile and survive an app
 replacement.
 
 Users on 1.2.0 install 1.3.0 once with a native installer; subsequent releases
-can be installed from inside WiFi Agent.
+can be installed from inside WiFi Agent. On Linux, **Check for updates** opens
+the release page; install the new `.deb` or Arch package with the package
+manager, which restarts running agents onto the new version.
 
 ## Source installation
 
-Source installation is intended for Linux, development, and troubleshooting.
+Source installation is intended for Linux distributions without a package,
+development, and troubleshooting.
 
 ### Requirements
 
-- Python 3.10 or newer
-- An unlocked credential vault:
+- Python 3.10 or newer with the `venv` module and Tk
+- A credential vault:
   - Windows Credential Manager
   - macOS Keychain
-  - Linux Secret Service
-- `python3-tk` on Linux distributions that package Tk separately
+  - Linux Secret Service (GNOME Keyring or KWallet); without one, Linux keeps
+    the password in a private user-only file
 
 ### Install
 
@@ -162,6 +211,10 @@ On macOS or Linux:
 ```sh
 ./install.sh
 ```
+
+On Linux, `install.sh` first installs missing system packages (Python venv
+and Tk) with apt, pacman, dnf, or zypper, asking before it uses `sudo`.
+Re-running it updates the private runtime and restarts a running agent.
 
 On Windows, double-click `install.cmd` or run:
 
@@ -175,19 +228,22 @@ installation.
 
 ## Command-line management
 
-For POSIX systems, use `./install.sh <command>`. On Windows, use
+With a Linux package, use `wifi-agent <command>`. For a source installation on
+macOS or Linux, use `./install.sh <command>`. On Windows, use
 `install.cmd <command>`.
 
 | Command | Description |
 | --- | --- |
 | `setup` | Open credentials and connection settings |
-| `run` | Run the monitor interactively |
+| `run` | Run the monitor interactively (with the Linux tray icon) |
 | `run --once` | Perform one connection and login cycle |
+| `run --no-tray` | Run the monitor without a Linux tray icon or notifications |
 | `check` | Ask the running agent to check immediately |
 | `status` | Display live state and recent logs |
 | `doctor` | Validate configuration, credential vault, startup, and interfaces |
 | `open-logs` | Open the log location |
 | `install` | Install or repair login-time monitoring |
+| `install --repair` | Rewrite the startup service without checking credentials |
 | `uninstall` | Remove login-time monitoring while keeping settings and credentials |
 
 Example:
@@ -201,10 +257,10 @@ Example:
 
 | Data | Storage |
 | --- | --- |
-| Password | Operating-system credential vault |
+| Password | Operating-system credential vault; on Linux without a Secret Service vault, `WiFiAgent/credentials.json` (mode 0600) |
 | Username and connection settings | Per-user `WiFiAgent/config.json` |
 | Runtime status | Per-user `WiFiAgent/status.json` |
-| Logs | Per-user `WiFiAgent/agent.log`, with rotation |
+| Logs | Per-user `WiFiAgent/agent.log`, with rotation; startup failures in `WiFiAgent/crash.log` |
 | Verified update installers | Per-user `WiFiAgent/updates/` |
 
 Platform configuration roots:
@@ -217,6 +273,12 @@ Security properties:
 
 - Passwords are never written to project files, configuration JSON, status
   snapshots, diagnostics, or logs.
+- On Linux machines without a Secret Service vault (for example a bare
+  Hyprland, Sway, or i3 session), the password is stored in
+  `credentials.json`, readable only by your user account (file mode 0600 in a
+  0700 directory). It is Base64-encoded, which is not encryption. Install and
+  unlock GNOME Keyring or KWallet, then save the password again, to move it
+  into the vault.
 - Portal responses are sanitized before logging.
 - Public connectivity checks reject captive-portal redirects and retain normal
   TLS verification.
@@ -228,19 +290,24 @@ Security properties:
   verification failures.
 
 WiFi Agent starts after user login rather than during pre-login boot because OS
-credential vaults are normally unavailable before the interactive session.
+credential vaults are normally unavailable before the interactive session. On
+Linux it runs as a systemd user service with `Restart=always` and a watchdog,
+so a crash or a hung check restarts it automatically.
 
 ## Troubleshooting
 
 | Symptom | Recommended action |
 | --- | --- |
-| macOS blocks the installer or app | Open **System Settings → Privacy & Security** and choose **Open Anyway**, then reopen WiFi Agent |
+| macOS blocks the installer or app | Use the Terminal installer, or open **System Settings → Privacy & Security** and choose **Open Anyway** ([details](#macos-first-launch)) |
+| Nothing appears when WiFi Agent is opened on macOS | Install 1.4.0 or later; startup errors now show an alert and are saved to `~/Library/Logs/WiFiAgent/crash.log` |
+| Linux notification says the password vault is unavailable | Unlock GNOME Keyring/KWallet, or open WiFi Agent and enter the password again to keep it in a private file |
+| No tray icon on GNOME | Enable the AppIndicator and KStatusNotifierItem Support extension; notifications work without it |
 | Windows shows an unknown publisher | Confirm the download came from this repository's Release page before continuing |
 | No Ethernet interface is detected | Connect the cable, choose **Refresh**, and select the adapter explicitly in Connection settings |
 | Portal shows reachable but not connected | Re-enter credentials, save them, and choose **Check Now** |
 | Portal is connected but internet is unavailable | The authenticated session is valid; inspect Diagnostics for upstream/probe failures |
 | Update verification fails | Retry the update; the rejected file is not executed and partial data is removed |
-| The agent is not running | Choose **Install / repair** or run the `doctor` command |
+| The agent is not running | Choose **Install / repair** or run the `doctor` command; on Linux also check `systemctl --user status wifi-agent` |
 
 Diagnostics and logs can be opened from the dashboard or tray/menu-bar menu.
 They do not include the saved password.
@@ -249,7 +316,8 @@ They do not include the saved password.
 
 ### Run tests
 
-The regression suite does not require installed runtime dependencies:
+The regression suite does not require installed runtime dependencies. Install
+`jeepney` as well to run the Linux tray D-Bus tests:
 
 ```sh
 python -m unittest discover -s tests -v
@@ -285,10 +353,20 @@ Build on macOS with:
 ./packaging/macos/build-installer.sh
 ```
 
+Build the Linux packages on Linux (the `.deb` needs `dpkg-deb`, the Arch
+package needs `makepkg`):
+
+```sh
+./packaging/debian/build-deb.sh
+./packaging/arch/build-package.sh
+```
+
 Build outputs are written to:
 
 - `build/windows/installer`
 - `build/macos/installer`
+- `build/linux` (`.deb`)
+- `build/arch` (Arch package, AUR-ready `PKGBUILD`, and source tarball)
 
 Every native builder runs the frozen application's runtime self-test before
 creating an installer.
@@ -316,10 +394,13 @@ The **Build native installers** workflow:
 
 - Runs tests and Ruff on Ubuntu.
 - Builds a Windows x64 installer on Windows.
-- Builds Apple silicon and Intel PKG/DMG installers on native macOS runners.
+- Builds Apple silicon and Intel PKG/DMG installers on native macOS runners,
+  installs each package, and launches it through LaunchServices.
+- Builds the `.deb` and Arch packages, then installs and runs them on
+  Debian 12, Ubuntu 22.04, Ubuntu 24.04, and Arch Linux.
 - Runs packaged-runtime startup checks before publishing.
 - Publishes manual workflow runs as prereleases with direct installer assets.
-- Publishes version tags such as `v1.3.0` as stable GitHub Releases with the
+- Publishes version tags such as `v1.4.0` as stable GitHub Releases with the
   matching file from `.github/release-notes/`.
 
 See [CHANGELOG.md](CHANGELOG.md) for release history.
