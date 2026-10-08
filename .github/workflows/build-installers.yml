@@ -22,9 +22,15 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-      - run: python -m pip install ruff==0.15.17
+      # jeepney lets the Linux tray D-Bus tests run; everything else is mocked.
+      - run: python -m pip install ruff==0.15.17 jeepney
       - run: python -m unittest discover -s tests -v
       - run: ruff check wifi_agent.py install.py packaging/generate_assets.py tests/test_wifi_agent.py
+      - name: Check shell scripts
+        run: |
+          shellcheck install.sh install-macos.sh packaging/linux/*.sh packaging/linux/wifi-agent \
+            packaging/debian/build-deb.sh packaging/debian/postinst packaging/debian/prerm \
+            packaging/arch/build-package.sh packaging/macos/*.sh packaging/macos/scripts/*
 
   windows:
     needs: test
@@ -160,6 +166,8 @@ jobs:
           fi
       - name: Build macOS installers
         run: ./packaging/macos/build-installer.sh "${{ steps.version.outputs.version }}"
+      - name: Install the package and launch it through LaunchServices
+        run: ./packaging/macos/verify-installer.sh build/macos/installer/*.pkg
       - uses: actions/upload-artifact@v7
         with:
           name: WiFiAgent-macOS-${{ matrix.architecture }}
@@ -168,8 +176,68 @@ jobs:
             build/macos/installer/*.dmg
           if-no-files-found: error
 
+  linux:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Resolve version
+        id: version
+        shell: bash
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          VERSION="$REQUESTED_VERSION"
+          if [[ -z "$VERSION" && "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          if [[ -z "$VERSION" ]]; then
+            VERSION="$(sed -n 's/^APP_VERSION = "\(.*\)"$/\1/p' wifi_agent.py)"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Validate desktop entry
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq desktop-file-utils
+          desktop-file-validate packaging/linux/wifi-agent.desktop
+      - name: Build Debian/Ubuntu package
+        run: ./packaging/debian/build-deb.sh "${{ steps.version.outputs.version }}" dist/linux
+      - name: Build Arch Linux package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p dist/linux
+          docker run --rm -e VERSION -v "$PWD:/src" archlinux:latest bash -euc '
+            pacman -Syu --noconfirm --needed base-devel git >/dev/null
+            useradd -m builder
+            cp -r /src /home/builder/src
+            chown -R builder: /home/builder/src
+            su builder -c "cd ~/src && sh packaging/arch/build-package.sh \"$VERSION\" /home/builder/out"
+            cp /home/builder/out/*.pkg.tar.zst /home/builder/out/*.tar.gz /home/builder/out/PKGBUILD /home/builder/out/wifi-agent.install /src/dist/linux/
+          '
+          sudo chown -R "$(id -u):$(id -g)" dist/linux
+      - name: Install and run the packages on supported distributions
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          for image in debian:12 ubuntu:22.04 ubuntu:24.04; do
+            echo "::group::$image"
+            docker run --rm -v "$PWD:/src:ro" "$image" sh -c \
+              "/src/packaging/linux/smoke-test.sh /src/dist/linux/wifi-agent_${VERSION}_all.deb"
+            echo "::endgroup::"
+          done
+          echo "::group::archlinux"
+          docker run --rm -v "$PWD:/src:ro" archlinux:latest sh -c \
+            "pacman -Sy --noconfirm >/dev/null && /src/packaging/linux/smoke-test.sh /src/dist/linux/wifi-agent-${VERSION}-1-any.pkg.tar.zst"
+          echo "::endgroup::"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: WiFiAgent-Linux
+          path: dist/linux/*
+          if-no-files-found: error
+
   release:
-    needs: [windows, macos]
+    needs: [windows, macos, linux]
     runs-on: ubuntu-latest
     permissions:
       contents: write
