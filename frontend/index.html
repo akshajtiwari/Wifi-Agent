@@ -36,8 +36,8 @@
   <!-- BEGIN: TopNotificationRibbon -->
   <div class="bg-black text-white text-xs md:text-sm py-2 px-4 text-center font-normal tracking-tight border-b border-neutral-800" data-purpose="announcement-banner">
     <div class="max-w-7xl mx-auto flex items-center justify-center space-x-2">
-      <span>WiFi Agent v1.3.0: Reliable Sophos & Cyberoam captive-portal keep-alive with zero credential leakage.</span>
-      <a class="underline hover:text-neutral-300 font-medium ml-1 inline-flex items-center" href="https://github.com/hotshot0104/Wifi-Agent" rel="noopener noreferrer" target="_blank">
+      <span>WiFi Agent v1.4.0: tray icon and notifications everywhere, instant re-login after portal logouts, and Linux packages.</span>
+      <a class="underline hover:text-neutral-300 font-medium ml-1 inline-flex items-center" href="https://github.com/akshajtiwari/Wifi-Agent/releases/tag/v1.4.0" rel="noopener noreferrer" target="_blank">
         GitHub Releases <span class="ml-1">→</span>
       </a>
     </div>
@@ -63,11 +63,11 @@
       </div>
       <!-- Action Buttons -->
       <div class="flex items-center space-x-3">
-        <a class="hidden sm:inline-flex px-4 py-2 text-xs md:text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 text-neutral-800 transition-colors" href="https://github.com/hotshot0104/Wifi-Agent" rel="noopener noreferrer" target="_blank">
+        <a class="hidden sm:inline-flex px-4 py-2 text-xs md:text-sm font-medium border border-gray-300 rounded-md hover:bg-gray-50 text-neutral-800 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent" rel="noopener noreferrer" target="_blank">
           GitHub
         </a>
-        <a class="inline-flex items-center px-4 py-2 text-xs md:text-sm font-medium bg-black text-white rounded-md hover:bg-neutral-800 transition-colors shadow-sm" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-Windows-x64-Setup.exe">
-          Download v1.3.0
+        <a class="inline-flex items-center px-4 py-2 text-xs md:text-sm font-medium bg-black text-white rounded-md hover:bg-neutral-800 transition-colors shadow-sm" href="#install">
+          Download v1.4.0
         </a>
       </div>
     </div>
@@ -82,20 +82,26 @@
           Stop captive portal drops <span class="text-gray-400 font-normal">before they disconnect your work.</span>
         </h1>
         <p class="mt-6 text-base sm:text-lg text-gray-500 max-w-2xl leading-relaxed" style="letter-spacing: -0.01em;">
-          WiFi Agent monitors physical Ethernet connectivity, restores Sophos and Cyberoam portal sessions automatically, and maintains keep-alive in the background without storing plaintext passwords on disk.
+          WiFi Agent monitors physical Ethernet connectivity, signs you back in to Sophos and Cyberoam portals within seconds whenever the session ends, and tells you what is happening from a tray icon and desktop notifications.
         </p>
 
         <!-- Action Buttons -->
         <div class="mt-8 sm:mt-10 flex flex-wrap items-center gap-3">
-          <a class="px-5 py-3 bg-black text-white text-sm font-semibold rounded-md hover:bg-neutral-800 transition-colors shadow-sm inline-flex items-center space-x-2" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-Windows-x64-Setup.exe">
+          <a class="px-5 py-3 bg-black text-white text-sm font-semibold rounded-md hover:bg-neutral-800 transition-colors shadow-sm inline-flex items-center space-x-2" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-Windows-x64-Setup.exe">
             <span>Download Windows Installer (.exe)</span>
             <span>→</span>
           </a>
-          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-arm64.pkg">
+          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-arm64.pkg">
             Download macOS Apple Silicon (.pkg)
           </a>
-          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-x86_64.pkg">
+          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-x86_64.pkg">
             Download macOS Intel (.pkg)
+          </a>
+          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent_1.4.0_all.deb">
+            Download Debian / Ubuntu (.deb)
+          </a>
+          <a class="px-5 py-3 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent-1.4.0-1-any.pkg.tar.zst">
+            Download Arch Linux (.pkg.tar.zst)
           </a>
         </div>
 
@@ -105,7 +111,7 @@
           <span class="text-gray-300">•</span>
           <span>macOS Apple Silicon / Intel</span>
           <span class="text-gray-300">•</span>
-          <span>Linux CLI</span>
+          <span>Linux (Debian, Ubuntu, Arch)</span>
           <span class="text-gray-300">•</span>
           <span>Python 3.10+</span>
           <span class="text-gray-300">•</span>
@@ -172,9 +178,9 @@
             </p>
           </div>
           <div class="p-6 sm:p-8">
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Zero Plaintext Credentials</h3>
+            <h3 class="text-lg font-bold text-gray-900 mb-2">Private Credentials</h3>
             <p class="text-sm text-gray-600 leading-relaxed">
-              Passwords are stored exclusively in the operating-system credential vault (Windows Credential Manager, macOS Keychain, or Linux Secret Service). Never saved to config files or logs.
+              Passwords are stored in the operating-system credential vault (Windows Credential Manager, macOS Keychain, or Linux Secret Service). On Linux desktops without a keyring, a private file readable only by you is used instead. Never saved to config files or logs.
             </p>
           </div>
           <div class="p-6 sm:p-8">
@@ -358,7 +364,7 @@
           </div>
           <div class="lg:col-span-7 lg:pl-10">
             <p class="text-base text-gray-600 leading-relaxed">
-              Native installers bundle the complete runtime. End users do not need Python or command-line tools. Configure once, and WiFi Agent keeps you connected silently in the background.
+              Native installers and Linux packages bundle or install everything they need. Download a package below, or paste one command into a terminal. Configure once, and WiFi Agent keeps you connected in the background.
             </p>
           </div>
         </div>
@@ -371,16 +377,22 @@
               <span class="font-mono text-xs font-semibold text-gray-400 tracking-widest uppercase">STEP 01</span>
               <h3 class="text-lg font-bold text-gray-900 mt-3 mb-2">Download &amp; Install</h3>
               <p class="text-sm text-gray-600 leading-relaxed">
-                Download the native installer for Windows (<code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">.exe</code>) or macOS (<code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">.pkg</code>). Run setup with a single click.
+                Download the installer for Windows (<code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">.exe</code>), macOS (<code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">.pkg</code>), Debian/Ubuntu (<code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">.deb</code>), or Arch Linux, or use the <a class="underline hover:text-black" href="#install">terminal commands</a> below.
               </p>
               <div class="mt-4 flex flex-wrap gap-2">
-                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-arm64.pkg">macOS Apple Silicon (.pkg)</a>
+                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-Windows-x64-Setup.exe">Windows (.exe)</a>
                 <span class="text-xs text-gray-300">|</span>
-                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-x86_64.pkg">macOS Intel (.pkg)</a>
+                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-arm64.pkg">macOS Apple Silicon (.pkg)</a>
+                <span class="text-xs text-gray-300">|</span>
+                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-x86_64.pkg">macOS Intel (.pkg)</a>
+                <span class="text-xs text-gray-300">|</span>
+                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent_1.4.0_all.deb">Debian / Ubuntu (.deb)</a>
+                <span class="text-xs text-gray-300">|</span>
+                <a class="text-xs font-semibold text-black underline hover:text-neutral-600" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent-1.4.0-1-any.pkg.tar.zst">Arch Linux</a>
               </div>
             </div>
             <div class="mt-8 pt-4 border-t border-gray-100">
-              <span class="block font-mono text-xs text-gray-500">Standalone pre-compiled binary</span>
+              <span class="block font-mono text-xs text-gray-500">Windows, macOS, and Linux</span>
             </div>
           </div>
 
@@ -390,11 +402,11 @@
               <span class="font-mono text-xs font-semibold text-gray-400 tracking-widest uppercase">STEP 02</span>
               <h3 class="text-lg font-bold text-gray-900 mt-3 mb-2">Enter Credentials Once</h3>
               <p class="text-sm text-gray-600 leading-relaxed">
-                Enter your portal username and password. WiFi Agent securely locks your credentials inside the operating-system vault (Windows DPAPI / macOS Keychain).
+                Open WiFi Agent and enter your portal username and password. They are kept in the operating-system vault (Windows Credential Manager, macOS Keychain, or Linux Secret Service), or in a private user-only file on Linux setups without one.
               </p>
             </div>
             <div class="mt-8 pt-4 border-t border-gray-100">
-              <span class="block font-mono text-xs text-gray-500">Zero plaintext storage on disk</span>
+              <span class="block font-mono text-xs text-gray-500">Never in config files or logs</span>
             </div>
           </div>
 
@@ -404,13 +416,64 @@
               <span class="font-mono text-xs font-semibold text-gray-400 tracking-widest uppercase">STEP 03</span>
               <h3 class="text-lg font-bold text-gray-900 mt-3 mb-2">Runs in the Background</h3>
               <p class="text-sm text-gray-600 leading-relaxed">
-                WiFi Agent docks into your system tray / menu bar, starts automatically at login, and restores your session every time Ethernet reconnects.
+                WiFi Agent shows a tray / menu-bar icon, starts automatically at login, signs you back in whenever the portal ends your session, and notifies you if anything needs attention.
               </p>
             </div>
             <div class="mt-8 pt-4 border-t border-gray-100">
               <span class="block font-mono text-xs text-gray-500">Automatic background keep-alive</span>
             </div>
           </div>
+        </div>
+
+        <!-- Terminal installation -->
+        <div class="mt-12 scroll-mt-24" id="install">
+          <span class="block font-mono text-xs text-gray-500 uppercase font-semibold tracking-wider mb-2">INSTALL FROM THE TERMINAL</span>
+          <h3 class="text-2xl font-medium text-gray-900 tracking-tight">One command per platform.</h3>
+          <p class="mt-3 text-sm text-gray-600 max-w-3xl leading-relaxed">
+            After installing, open <strong>WiFi Agent</strong> from your applications menu (on Linux you can also run <code class="font-mono text-xs bg-gray-100 px-1 py-0.5 rounded">wifi-agent setup</code>), enter your credentials, and choose <strong>Save &amp; install</strong>.
+          </p>
+          <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-900">macOS (Apple Silicon &amp; Intel)</span>
+                <button class="copy-command text-xs font-semibold text-gray-600 hover:text-black" type="button">Copy</button>
+              </div>
+              <pre class="px-4 py-4 bg-neutral-950 text-neutral-100 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all"><code>curl -fsSL https://raw.githubusercontent.com/akshajtiwari/Wifi-Agent/main/install-macos.sh | bash</code></pre>
+              <p class="px-4 py-3 text-xs text-gray-500">Downloads the right package for your Mac, verifies its SHA-256 digest, and installs it without the unsigned-download Gatekeeper block.</p>
+            </div>
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-900">Debian 12+, Ubuntu 22.04+, Mint, Pop!_OS</span>
+                <button class="copy-command text-xs font-semibold text-gray-600 hover:text-black" type="button">Copy</button>
+              </div>
+              <pre class="px-4 py-4 bg-neutral-950 text-neutral-100 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all"><code>curl -LO https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent_1.4.0_all.deb
+sudo apt install ./wifi-agent_1.4.0_all.deb</code></pre>
+              <p class="px-4 py-3 text-xs text-gray-500">Adds WiFi Agent to the applications menu with a tray icon and notifications.</p>
+            </div>
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-900">Arch Linux, Manjaro, EndeavourOS</span>
+                <button class="copy-command text-xs font-semibold text-gray-600 hover:text-black" type="button">Copy</button>
+              </div>
+              <pre class="px-4 py-4 bg-neutral-950 text-neutral-100 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all"><code>curl -LO https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent-1.4.0-1-any.pkg.tar.zst
+sudo pacman -U wifi-agent-1.4.0-1-any.pkg.tar.zst</code></pre>
+              <p class="px-4 py-3 text-xs text-gray-500">An AUR-ready <a class="underline hover:text-black" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/PKGBUILD">PKGBUILD</a> is attached to the release as well.</p>
+            </div>
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <div class="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+                <span class="text-sm font-bold text-gray-900">Fedora, openSUSE, other Linux</span>
+                <button class="copy-command text-xs font-semibold text-gray-600 hover:text-black" type="button">Copy</button>
+              </div>
+              <pre class="px-4 py-4 bg-neutral-950 text-neutral-100 text-xs font-mono overflow-x-auto whitespace-pre-wrap break-all"><code>git clone https://github.com/akshajtiwari/Wifi-Agent.git
+cd Wifi-Agent
+./install.sh</code></pre>
+              <p class="px-4 py-3 text-xs text-gray-500">Installs Python venv and Tk with your package manager (asking before using sudo), then opens setup.</p>
+            </div>
+          </div>
+          <p class="mt-4 text-xs text-gray-500">
+            Windows: download and run <a class="underline hover:text-black" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-Windows-x64-Setup.exe">WiFiAgent-1.4.0-Windows-x64-Setup.exe</a>.
+            Check the agent any time with <code class="font-mono bg-gray-100 px-1 py-0.5 rounded">wifi-agent status</code> or <code class="font-mono bg-gray-100 px-1 py-0.5 rounded">wifi-agent doctor</code> on Linux.
+          </p>
         </div>
       </div>
     </section>
@@ -460,19 +523,22 @@
           Ready for uninterrupted captive network persistence?
         </h2>
         <p class="mt-3 text-sm sm:text-base text-gray-600 max-w-xl mx-auto">
-          Lightweight, open-source binary with native Windows tray support, encrypted password vaults, and automated reconnect daemon.
+          Lightweight and open source, with a tray icon and notifications on Windows, macOS, and Linux, OS credential vaults, and automatic re-login.
         </p>
         <div class="mt-6 flex flex-wrap justify-center gap-3">
-          <a class="px-5 py-2.5 bg-black text-white text-sm font-semibold rounded-md hover:bg-neutral-800 transition-colors shadow-sm" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-Windows-x64-Setup.exe">
-            Download WiFiAgent-1.3.0-Windows-x64-Setup.exe
+          <a class="px-5 py-2.5 bg-black text-white text-sm font-semibold rounded-md hover:bg-neutral-800 transition-colors shadow-sm" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-Windows-x64-Setup.exe">
+            Download WiFiAgent-1.4.0-Windows-x64-Setup.exe
           </a>
-          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-arm64.pkg">
+          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-arm64.pkg">
             Download macOS Apple Silicon (.pkg)
           </a>
-          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.3.0/WiFiAgent-1.3.0-macOS-x86_64.pkg">
+          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/WiFiAgent-1.4.0-macOS-x86_64.pkg">
             Download macOS Intel (.pkg)
           </a>
-          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/hotshot0104/Wifi-Agent" rel="noopener noreferrer" target="_blank">
+          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="#install">
+            Linux packages &amp; commands
+          </a>
+          <a class="px-5 py-2.5 border border-gray-300 bg-white text-neutral-800 text-sm font-semibold rounded-md hover:bg-gray-50 transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent" rel="noopener noreferrer" target="_blank">
             View Source on GitHub
           </a>
         </div>
@@ -490,13 +556,24 @@
         <span class="text-xs">Open Source Captive Portal Agent</span>
       </div>
       <div class="flex items-center space-x-6 text-xs font-mono">
-        <a class="hover:text-black transition-colors" href="https://github.com/hotshot0104/Wifi-Agent/releases" rel="noopener noreferrer" target="_blank">Releases</a>
-        <a class="hover:text-black transition-colors" href="https://github.com/hotshot0104/Wifi-Agent#how-it-works" rel="noopener noreferrer" target="_blank">Architecture</a>
-        <a class="hover:text-black transition-colors" href="https://github.com/hotshot0104/Wifi-Agent/blob/main/LICENSE" rel="noopener noreferrer" target="_blank">License</a>
-        <a class="hover:text-black transition-colors" href="https://github.com/hotshot0104/Wifi-Agent" rel="noopener noreferrer" target="_blank">GitHub</a>
+        <a class="hover:text-black transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/releases" rel="noopener noreferrer" target="_blank">Releases</a>
+        <a class="hover:text-black transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent#how-it-works" rel="noopener noreferrer" target="_blank">Architecture</a>
+        <a class="hover:text-black transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent/blob/main/LICENSE" rel="noopener noreferrer" target="_blank">License</a>
+        <a class="hover:text-black transition-colors" href="https://github.com/akshajtiwari/Wifi-Agent" rel="noopener noreferrer" target="_blank">GitHub</a>
       </div>
     </div>
   </footer>
   <!-- END: SiteFooter -->
+  <script>
+    document.querySelectorAll(".copy-command").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var code = button.closest("div.border").querySelector("pre code").textContent;
+        navigator.clipboard.writeText(code).then(function () {
+          button.textContent = "Copied";
+          setTimeout(function () { button.textContent = "Copy"; }, 1500);
+        });
+      });
+    });
+  </script>
 </body>
 </html>

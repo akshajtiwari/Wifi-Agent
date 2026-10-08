@@ -84,6 +84,46 @@ The first launch displays only initial setup. After credentials and login-time
 monitoring are configured, WiFi Agent reveals the live dashboard, shows its
 tray or menu-bar icon, and starts monitoring in the background at every login.
 
+### Install from the terminal
+
+macOS (Apple silicon and Intel):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/akshajtiwari/Wifi-Agent/main/install-macos.sh | bash
+```
+
+Debian 12+, Ubuntu 22.04+, Linux Mint, Pop!_OS:
+
+```sh
+curl -LO https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent_1.4.0_all.deb
+sudo apt install ./wifi-agent_1.4.0_all.deb
+```
+
+Arch Linux, Manjaro, EndeavourOS:
+
+```sh
+curl -LO https://github.com/akshajtiwari/Wifi-Agent/releases/download/v1.4.0/wifi-agent-1.4.0-1-any.pkg.tar.zst
+sudo pacman -U wifi-agent-1.4.0-1-any.pkg.tar.zst
+```
+
+Fedora, openSUSE, and other distributions:
+
+```sh
+git clone https://github.com/akshajtiwari/Wifi-Agent.git
+cd Wifi-Agent
+./install.sh
+```
+
+Then open **WiFi Agent** from the applications menu (or run
+`wifi-agent setup` with a Linux package), enter your credentials, and choose
+**Save & install**. Check on the agent any time with:
+
+```sh
+wifi-agent status
+wifi-agent doctor
+systemctl --user status wifi-agent   # Linux background service
+```
+
 ### macOS first launch
 
 The packages are not yet notarized by Apple, so macOS 15 shows *"Apple could
