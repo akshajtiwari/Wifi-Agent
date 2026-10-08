@@ -32,8 +32,10 @@ def main() -> int:
     runtime.mkdir(parents=True, exist_ok=True)
     installed_script = runtime / "wifi_agent.py"
     installed_requirements = runtime / "requirements.txt"
+    previous_code = installed_script.read_bytes() if installed_script.exists() else b""
     shutil.copy2(source / "wifi_agent.py", installed_script)
     shutil.copy2(source / "requirements.txt", installed_requirements)
+    code_changed = previous_code != installed_script.read_bytes()
 
     environment = runtime / ".venv"
     if not environment.exists():
@@ -54,7 +56,23 @@ def main() -> int:
         marker.write_text(requirement_hash, encoding="ascii")
 
     command = sys.argv[1:] or ["setup"]
+    if code_changed and previous_code and command[0] not in {"install", "uninstall"}:
+        restart_running_agent()
     return subprocess.call([str(python), str(installed_script), *command])
+
+
+def restart_running_agent() -> None:
+    """Move an already-running background agent onto the updated code."""
+    if sys.platform.startswith("linux"):
+        unit = Path.home() / ".config" / "systemd" / "user" / "wifi-agent.service"
+        if unit.exists() and shutil.which("systemctl"):
+            print("Restarting the background service with the updated code…")
+            subprocess.run(["systemctl", "--user", "try-restart", unit.name], check=False)
+    elif sys.platform == "darwin":
+        agent = Path.home() / "Library" / "LaunchAgents" / "com.local.wifi-agent.plist"
+        if agent.exists():
+            print("Restarting the menu-bar agent with the updated code…")
+            subprocess.run(["launchctl", "kickstart", "-k", f"gui/{os.getuid()}/com.local.wifi-agent"], check=False)
 
 
 if __name__ == "__main__":

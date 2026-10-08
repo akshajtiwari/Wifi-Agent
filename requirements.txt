@@ -1,4 +1,6 @@
 keyring>=25.0,<26
 psutil>=5.9,<8
+# Linux tray icon and desktop notifications over D-Bus (pure Python).
+jeepney>=0.7,<1; platform_system == "Linux"
 pystray>=0.19.5,<1; platform_system == "Windows" or platform_system == "Darwin"
 Pillow>=10,<13; platform_system == "Windows" or platform_system == "Darwin"
